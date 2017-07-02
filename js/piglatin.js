@@ -11,6 +11,8 @@ function piglatin() {
 function pigify(word) {
     var consonant_ctr = 0;
     var vowel_ctr = 0;
+    if(word.length < 3)
+        return word + "way";
     for(var i=0, len=word.length; i<len; i++) {
         var letter = word[i];
         if(is_vowel(letter)) {
@@ -30,7 +32,7 @@ function pigify(word) {
 }
 
 function is_vowel(letter) {
-    return /[aeiou]/.test(letter);
+    return /[aeiouy]/.test(letter);
 }
 function is_consonant(letter) {
     return !is_vowel(letter);
