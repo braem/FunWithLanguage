@@ -7,7 +7,6 @@ Lang.MorseCode = (function () {
     var context = new (window.AudioContext || window.webkitAudioContext());
     var oscillator = context.createOscillator();
     oscillator.frequency.value = 440;
-    oscillator.connect(context.destination);
 
     var morse_map = {
         "A": ".-",
@@ -62,7 +61,7 @@ Lang.MorseCode = (function () {
         var form = document.getElementById("form");
         var text = form.elements[0].value;
         var words = text.split(" ");
-        var code = [];
+        var code = "";
         for(var i=0; i<words.length; i++) {
             for(var j=0; j<words[i].length; j++) {
                 if(!is_simple(words[i][j])) {
@@ -70,60 +69,75 @@ Lang.MorseCode = (function () {
                     element.innerHTML = "Invalid sequence!";
                     return;
                 }
-                code.push(morse_map[words[i][j].toUpperCase()]);
+                code += morse_map[words[i][j].toUpperCase()];
             }
         }
         Lang.MorseCode.code = code;
+        console.log(code);
         element.style.letterSpacing = '-3px';
         element.innerHTML = code.toString().replace(/-/g, bar+space).replace(/\./g, dot+space).replace(/,/g, "");
     };
 
+    var timeoutID = null;
+    var current = null;
+    var index = 0;
     var play = function() {
-
-        oscillator.start(0);
+        $('#morse_play').prop("disabled", true);
+        $('#morse_pause').prop("disabled", false);
+        $('#morse_stop').prop("disabled", false);
+        if(index >= Lang.MorseCode.code.length) { reset(); return; }
+        current = Lang.MorseCode.code[index];
+        index++;
+        start_oscillator();
+        if(current == "-") {
+            timeoutID = setTimeout(stop_oscillator, 300);
+        }
+        else if(current == ".") {
+            timeoutID = setTimeout(stop_oscillator, 100);
+        }
     };
 
     var stop = function() {
         oscillator.stop(0);
+        reset();
     };
 
-    var playChar = function(t, c) {
-        for(var i = 0; i < c.length; i++) {
-            switch(c[i]) {
-                case '.':
-                    gain.gain.setValueAtTime(1.0, t);
-                    t += dot_time;
-                    gain.gain.setValueAtTime(0.0, t);
-                    break;
-                case '-':
-                    gain.gain.setValueAtTime(1.0, t);
-                    t += 3 * dot_time;
-                    gain.gain.setValueAtTime(0.0, t);
-                    break;
-            }
-            t += dot_time;
-        }
-        return t;
+    var pause = function() {
+        clearTimeout(timeoutID);
+        oscillator.stop(0);
+        $('#morse_play').prop("disabled", false);
+        $('#morse_pause').prop("disabled", true);
+        $('#morse_stop').prop("disabled", false);
     };
 
-    var playString = function(t, w) {
-        w = w.toUpperCase();
-        for(var i = 0; i < w.length; i++) {
-            if(w[i] == ' ') {
-                t += 3 * dot_time; // 3 dots from before, three here, and
-                                    // 1 from the ending letter before.
-            }
-            else if(morse_map[w[i]] != undefined) {
-                t = playChar(t, morse_map[w[i]]);
-                t += 2 * dot_time;
-            }
-        }
-        return t;
-    };
+    function reset() {
+        clearTimeout(timeoutID);
+        timeoutID = null;
+        current = null;
+        index = 0;
+        $('#morse_play').prop("disabled", false);
+        $('#morse_pause').prop("disabled", true);
+        $('#morse_stop').prop("disabled", true);
+    }
+
+    function start_oscillator() {
+        oscillator = context.createOscillator();
+        oscillator.frequency.value = 440;
+        oscillator.connect(context.destination);
+        oscillator.start(0);
+    }
+    function stop_oscillator() {
+        console.log('boop');
+        oscillator.stop(0);
+        oscillator.disconnect(context.destination);
+        timeoutID = setTimeout(play, 100);
+        //play();
+    }
 
     return {
         gen: morsecode,
         play: play,
+        pause: pause,
         stop: stop
     };
 
