@@ -26,13 +26,13 @@ Lang.PigLatin = (function () {
 
     function is_simple(word) {
         for(var i=0; i<word.length; i++) {
-            if(!/[abcdefghijklmnopqrstuvwxyz]/.test(word[i]))
+            if(!/[abcdefghijklmnopqrstuvwxyz]/i.test(word[i]))
                 return false;
         }
         return true;
     }
     function is_vowel(letter) {
-        return /[aeiouy]/.test(letter);
+        return /[aeiouy]/i.test(letter);
     }
     function is_consonant(letter) {
         return !is_vowel(letter);

@@ -53,7 +53,7 @@ Lang.MorseCode = (function () {
     };
 
     function is_simple(letter) {
-        return /[abcdefghijklmnopqrstuvwxyz0123456789]/.test(letter);
+        return /[abcdefghijklmnopqrstuvwxyz0123456789]/i.test(letter);
     }
 
     var morsecode = function() {
