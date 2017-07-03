@@ -73,7 +73,6 @@ Lang.MorseCode = (function () {
             }
         }
         Lang.MorseCode.code = code;
-        console.log(code);
         element.style.letterSpacing = '-3px';
         element.innerHTML = code.toString().replace(/-/g, bar+space).replace(/\./g, dot+space).replace(/,/g, "");
     };
